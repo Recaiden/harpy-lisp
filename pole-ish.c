@@ -1181,11 +1181,7 @@ int main(int argc, char** argv)
   
   // builtin macros
   mpc_result_t rbmac;
-
-/*  mpc_parse("<library>",
-	    "load \"constants.arc\"",
-	    Lispy, &rbmac);
-	    lval_eval(e, lval_read(rbmac.output));*/
+  
   mpc_parse("<library>",
 	    "load \"stdlib.arc\"",
 	    Lispy, &rbmac);
