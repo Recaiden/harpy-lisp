@@ -1,0 +1,124 @@
+; Function Definitions
+(def {fun} (\ {f b} {
+  def (head f) (\ (tail f) b)
+}))
+
+;
+; List functions
+;
+(fun {unpack f l} {eval (join (list f) l) })
+(fun {pack f & xs} {f xs})
+(def {curry} unpack)
+(def {uncurry} pack)
+(fun {len l} {if (== l {}) {0} {+ 1 (len (tail l))} })
+
+; First, Second, or Third Item in List
+(fun {fst l} { eval (head l) })
+(fun {snd l} { eval (head (tail l)) })
+(fun {trd l} { eval (head (tail (tail l))) })
+; Last item in List
+(fun {last l} {nth (- (len l) 1) l})
+
+; Take N items
+(fun {take n l} {
+  if (== n 0)
+    {nil}
+    {join (head l) (take (- n 1) (tail l))}
+})
+
+; Drop N items
+(fun {drop n l} {
+  if (== n 0)
+    {l}
+    {drop (- n 1) (tail l)}
+})
+
+; Split at N
+(fun {split n l} {list (take n l) (drop n l)})
+
+; Element of List
+(fun {contains x l} {
+  if (== l nil)
+    {false}
+    {if (== x (fst l)) {true} {elem x (tail l)}}
+})
+
+
+(fun {reverse l} {
+  if (== l {})
+    {{}}
+    {join (reverse (tail l)) (head l)}
+})
+
+(fun { index l n } { if (== n 0) { (head l) } { (index (tail l) (- n 1) )} } )
+
+;
+;
+;
+(fun {do & l} {
+  if (== l nil)
+    {nil}
+    {last l}
+})
+
+;
+; Open new scope
+;
+(fun {let b}
+{
+  ((\ {_} b) ())
+}
+)
+
+;
+; Logical Functions
+;
+(fun {not x}   {- 1 x})
+(fun {or x y}  {if (+ x y) {1} {0}})
+(fun {or x y}  {if (+ x y) {0} {1}})
+(fun {xor x y} {if (- (+ x y) 1) {0} {1}})
+(fun {and x y} {* x y})
+(fun {nand x y} {if (* x y) {0} {1}})
+
+;
+;Meta Functions
+;
+(fun {flip f a b} {f b a})
+(fun {ghost & xs} {eval xs})
+(fun {comp f g x} {f (g x)})
+
+; Apply Function to List
+(fun {map f l} {
+  if (== l nil)
+    {nil}
+    {join (list (f (fst l))) (map f (tail l))}
+})
+
+; Apply Filter to List
+(fun {filter f l} {
+  if (== l nil)
+    {nil}
+    {join (if (f (fst l)) {head l} {nil}) (filter f (tail l))}
+})
+
+; Fold Left
+(fun {foldl f z l} {
+  if (== l nil)
+    {z}
+    {foldl f (f z (fst l)) (tail l)}
+})
+
+;
+; Folds
+;
+(fun {sum l} {foldl + 0 l})
+(fun {product l} {foldl * 1 l})
+(fun {length l} {foldl (lambda {x list} {+ x 1}) 0 l})
+
+;
+; Load other files
+;
+(load "constants.arc")
+(load "condition.arc")
+(load "math.arc")
+
