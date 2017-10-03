@@ -32,6 +32,7 @@ lval* builtin_def(lenv* e, lval* a);
 lval* builtin_put(lenv* e, lval* a);
 lval* builtin_print(lenv* e, lval* a);
 lval* builtin_error(lenv* e, lval* a);
+lval* builtin_exit(lenv* e, lval* a);
 void lenv_add_builtin(lenv* e, char* name, lbuiltin func);
 void lenv_add_builtins(lenv* e);
 

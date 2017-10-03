@@ -305,35 +305,44 @@ lval* builtin_var(lenv* e, lval* a, char* func)
   for (int i = 0; i < syms->count; i++)
   {
     LASSERT(a, syms->cell[i]->type == LVAL_SYM,
-	    "Function '%s' cannot define non-symbol", func);
+	    "'%s' cannot define non-symbol", func);
 
   /* Disallow redefinition of builtins */
-    LASSERT(a, strcmp(syms->cell[i]->sym, "+") != 0,
-	    "Function '%s' cannot redefine arithmetic operators", func);
-    LASSERT(a, strcmp(syms->cell[i]->sym, "-") != 0,
-	    "Function '%s' cannot redefine arithmetic operators", func);
-    LASSERT(a, strcmp(syms->cell[i]->sym, "*") != 0,
-	    "Function '%s' cannot redefine arithmetic operators", func);
-    LASSERT(a, strcmp(syms->cell[i]->sym, "/") != 0,
-	    "Function '%s' cannot redefine arithmetic operators", func);
-    LASSERT(a, strcmp(syms->cell[i]->sym, "%") != 0,
-	    "Function '%s' cannot redefine arithmetic operators", func);
+    LASSERT(a, strstr("+-*/%<>!", syms->cell[i]->sym) == NULL,
+	    "'%s' cannot redefine arithmetic operator %s", func, syms->cell[i]->sym);
     
     LASSERT(a, strcmp(syms->cell[i]->sym, "def") != 0,
-	    "Function '%s' cannot redefine itself", func);
+	    "'%s' cannot redefine itself", func);
     LASSERT(a, strcmp(syms->cell[i]->sym, "=") != 0,
-	    "Function '%s' cannot redefine itself", func);
-    
+	    "'%s' cannot redefine itself", func);
+
     LASSERT(a, strcmp(syms->cell[i]->sym, "tail") != 0,
-	    "Function '%s' cannot redefine builtin functions", func);
+	    "'%s' cannot redefine builtin functions", func);
     LASSERT(a, strcmp(syms->cell[i]->sym, "head") != 0,
-	    "Function '%s' cannot redefine builtin functions", func);
+	    "'%s' cannot redefine builtin functions", func);
     LASSERT(a, strcmp(syms->cell[i]->sym, "list") != 0,
-	    "Function '%s' cannot redefine builtin functions", func);
+	    "'%s' cannot redefine builtin functions", func);
     LASSERT(a, strcmp(syms->cell[i]->sym, "eval") != 0,
-	    "Function '%s' cannot redefine builtin functions", func);
+	    "'%s' cannot redefine builtin functions", func);
     LASSERT(a, strcmp(syms->cell[i]->sym, "join") != 0,
-	    "Function '%s' cannot redefine builtin functions", func);
+	    "'%s' cannot redefine builtin functions", func);
+    LASSERT(a, strcmp(syms->cell[i]->sym, "if") != 0,
+	    "'%s' cannot redefine builtin functions", func);
+    LASSERT(a, strcmp(syms->cell[i]->sym, "\\") != 0,
+	    "'%s' cannot redefine builtin functions", func);
+    LASSERT(a, strcmp(syms->cell[i]->sym, "lambda") != 0,
+	    "'%s' cannot redefine builtin functions", func);
+    LASSERT(a, strcmp(syms->cell[i]->sym, "load") != 0,
+	    "'%s' cannot redefine builtin functions", func);
+    LASSERT(a, strcmp(syms->cell[i]->sym, "error") != 0,
+	    "'%s' cannot redefine builtin functions", func);
+    LASSERT(a, strcmp(syms->cell[i]->sym, "print") != 0,
+	    "'%s' cannot redefine builtin functions", func);
+    LASSERT(a, strcmp(syms->cell[i]->sym, "exit") != 0,
+	    "'%s' cannot redefine builtin functions", func);
+    LASSERT(a, strcmp(syms->cell[i]->sym, "quit") != 0,
+	    "'%s' cannot redefine builtin functions", func);
+    
   }
 
    LASSERT(a, (syms->count == a->count-1),
@@ -395,6 +404,14 @@ lval* builtin_error(lenv* e, lval* a) {
   return err;
 }
 
+lval* builtin_exit(lenv* e, lval* a)
+{
+  lenv_del(e);
+  lval_del(a);
+
+  exit(0);
+}
+
 void lenv_add_builtin(lenv* e, char* name, lbuiltin func)
 {
   lval* k = lval_sym(name);
@@ -425,7 +442,7 @@ void lenv_add_builtins(lenv* e)
   lenv_add_builtin(e, "==", builtin_eq);
   lenv_add_builtin(e, "<", builtin_lt);
   lenv_add_builtin(e, ">", builtin_gt);
-  lenv_add_builtin(e, "!", builtin_ne);
+  lenv_add_builtin(e, "!=", builtin_ne);
 
   lenv_add_builtin(e, "if", builtin_if);
 
@@ -439,4 +456,7 @@ void lenv_add_builtins(lenv* e)
   lenv_add_builtin(e, "load",  builtin_load);
   lenv_add_builtin(e, "error", builtin_error);
   lenv_add_builtin(e, "print", builtin_print);
+
+  lenv_add_builtin(e, "exit", builtin_exit);
+  lenv_add_builtin(e, "quit", builtin_exit);
 }

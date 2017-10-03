@@ -13,6 +13,9 @@
 
 static char buffer[2048];
 
+// NOTE lval substructures for functions and expressions.
+// TODO seperate int and floating-point types
+
 char* readline(char* prompt) {
   fputs(prompt, stdout);
   fgets(buffer, 2048, stdin);

@@ -5,8 +5,7 @@
 
 mpc_parser_t* Lispy;
 
-/* Add QEXPR as possible lval type */
-enum { LVAL_ERR, LVAL_NUM, LVAL_SYM, LVAL_STR, LVAL_FUN, LVAL_SEXPR, LVAL_QEXPR };
+enum type_lval { LVAL_ERR, LVAL_NUM, LVAL_SYM, LVAL_STR, LVAL_FUN, LVAL_SEXPR, LVAL_QEXPR };
 
 struct lval;
 struct lenv;

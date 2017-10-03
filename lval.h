@@ -12,10 +12,13 @@ struct lval
   int type;
 
   // Basic Types
-  double num;
-  char* err;
-  char* sym;
-  char* str;
+  union Data
+  {
+    double num;
+    char* err;
+    char* sym;
+    char* str;
+  };
 
   // Functions
   lbuiltin builtin;
