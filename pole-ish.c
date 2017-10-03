@@ -1,5 +1,6 @@
 
-
+#include <stdio.h>
+#include <stdlib.h>
 #include "mpc.h"
 
 #ifdef _WIN32
@@ -1159,8 +1160,20 @@ int main(int argc, char** argv)
       lispy  : /^/ <expr>* /$/ ;                         \
     ",
 	    Comment, String, Number, Symbol, Sexpr, Qexpr, Expr, Lispy);
-  
-  puts("Lispy Version 0.0.0.0.6");
+
+  FILE* handleVer = fopen("VERSION", "rb");
+  char  bufferVer[128];
+  int sizeVersion;
+
+  if(handleVer)
+  {
+    fseek (handleVer, 0, SEEK_END);
+    sizeVersion = ftell (handleVer);
+    rewind (handleVer);
+    fread(bufferVer, 1, sizeVersion, handleVer);
+  }
+
+  printf("Harpy-Lispy Version %s", bufferVer);
   puts("Press Ctrl+c to Exit\n");
 
   lenv* e = lenv_new();
