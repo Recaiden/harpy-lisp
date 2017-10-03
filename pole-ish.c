@@ -82,7 +82,7 @@ int main(int argc, char** argv)
   mpc_parse("<library>",
 	    "load \"stdlib.arc\"",
 	    Lispy, &rbmac);
-	    lval_eval(e, lval_read(rbmac.output));
+  lval_eval(e, lval_read(rbmac.output));
 
   /* Supplied with list of files */
   if (argc >= 2)

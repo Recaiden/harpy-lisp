@@ -49,6 +49,42 @@ lval* builtin_load(lenv* e, lval* a)
   }
 }
 
+lval* builtin_read(lenv* e, lval* a)
+{
+  LASSERT_NUM("read", a, 1);
+  LASSERT_TYPE("read", a, 0, LVAL_STR);
+
+  /* Parse given string */
+  mpc_result_t rrd;
+  
+  if(mpc_parse("<read>", a->cell[0]->str, Lispy, &rrd))
+  {
+    lval* x = lval_eval(e, lval_read(rrd.output));
+    lval_println(x);
+    lval_del(x);
+    
+    lval_del(a);
+    
+    mpc_ast_delete(rrd.output);
+    
+    /* Return empty list */
+    return lval_sexpr();
+  }
+  else
+  {
+    /* Return error */
+    char* err_msg = mpc_err_string(rrd.error);
+    mpc_err_delete(rrd.error);
+    mpc_err_print(rrd.error);
+
+    lval* err = lval_err("Could not load Library %s", err_msg);
+    free(err_msg);
+    lval_del(a);
+    
+    return err;
+  }
+}
+
 lval* builtin_lambda(lenv* e, lval* a) {
   /* Check Two arguments, each of which are Q-Expressions */
   LASSERT_NUM("\\", a, 2);
@@ -361,6 +397,8 @@ lval* builtin_var(lenv* e, lval* a, char* func)
 	    "'%s' cannot redefine builtin functions", func);
     LASSERT(a, strcmp(syms->cell[i]->sym, "load") != 0,
 	    "'%s' cannot redefine builtin functions", func);
+    LASSERT(a, strcmp(syms->cell[i]->sym, "read") != 0,
+	    "'%s' cannot redefine builtin functions", func);
     LASSERT(a, strcmp(syms->cell[i]->sym, "error") != 0,
 	    "'%s' cannot redefine builtin functions", func);
     LASSERT(a, strcmp(syms->cell[i]->sym, "print") != 0,
@@ -481,6 +519,7 @@ void lenv_add_builtins(lenv* e)
 
   /* String Functions */
   lenv_add_builtin(e, "load",  builtin_load);
+  lenv_add_builtin(e, "read",  builtin_read);
   lenv_add_builtin(e, "error", builtin_error);
   lenv_add_builtin(e, "print", builtin_print);
 
