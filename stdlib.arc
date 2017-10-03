@@ -4,13 +4,31 @@
 }))
 
 ;
+; Logical Functions
+;
+(fun {not x}   {- 1 x})
+(fun {or x y}  {if (+ x y) {1} {0}})
+(fun {nor x y}  {if (+ x y) {0} {1}})
+(fun {xor x y} {if (- (+ x y) 1) {0} {1}})
+(fun {and x y} {* x y})
+(fun {nand x y} {if (* x y) {0} {1}})
+
+
+;
 ; List functions
 ;
 (fun {unpack f l} {eval (join (list f) l) })
 (fun {pack f & xs} {f xs})
 (def {curry} unpack)
 (def {uncurry} pack)
-(fun {len l} {if (== l {}) {0} {+ 1 (len (tail l))} })
+(fun {len l} {if (or (== l {}) (== l "")) {0} {+ 1 (len (tail l))} })
+
+; Nth item in List
+(fun {nth n l} {
+  if (== n 0)
+    {fst l}
+    {nth (- n 1) (tail l)}
+})
 
 ; First, Second, or Third Item in List
 (fun {fst l} { eval (head l) })
@@ -69,16 +87,6 @@
   ((\ {_} b) ())
 }
 )
-
-;
-; Logical Functions
-;
-(fun {not x}   {- 1 x})
-(fun {or x y}  {if (+ x y) {1} {0}})
-(fun {or x y}  {if (+ x y) {0} {1}})
-(fun {xor x y} {if (- (+ x y) 1) {0} {1}})
-(fun {and x y} {* x y})
-(fun {nand x y} {if (* x y) {0} {1}})
 
 ;
 ;Meta Functions

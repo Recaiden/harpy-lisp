@@ -257,7 +257,12 @@ void lval_print(lval* v)
     putchar(' '); lval_print(v->body); putchar(')');
     }
     break;
-  case LVAL_SEXPR: lval_expr_print(v, '(', ')'); break;
+  case LVAL_SEXPR:
+      if(v->count == 0)
+      {
+	break;
+      }
+    lval_expr_print(v, '(', ')'); break;
   case LVAL_QEXPR: lval_expr_print(v, '{', '}'); break;
   }
 }

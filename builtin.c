@@ -82,32 +82,59 @@ lval* builtin_head(lenv* e, lval* a)
 	  "Function 'head' passed too many arguments. "
 	  "Got %i, Expected %i.",
 	  a->count, 1);
-  LASSERT(a, a->cell[0]->type == LVAL_QEXPR,
+  LASSERT(a, a->cell[0]->type == LVAL_QEXPR || a->cell[0]->type == LVAL_STR,
 	  "Function 'head' passed incorrect type for argument 0. "
-	  "Got %s, Expected %s.",
-	  ltype_name(a->cell[0]->type), ltype_name(LVAL_QEXPR));
-  LASSERT(a, a->cell[0]->count != 0,
-	  "Function 'head' passed {}.");
-  
-  lval* v = lval_take(a, 0);  
-  while (v->count > 1) { lval_del(lval_pop(v, 1)); }
+	  "Got %s, Expected %s or %s.",
+	  ltype_name(a->cell[0]->type), ltype_name(LVAL_QEXPR), ltype_name(LVAL_STR));
+
+  lval* v;
+  if(a->cell[0]->type == LVAL_STR)
+  {
+    if(strlen(a->cell[0]->str) == 0)
+      v = lval_str("\0");
+    else
+    {
+      a->cell[0]->str[1] = 0;
+      v = lval_str(a->cell[0]->str);
+    }
+    lval_del(a);
+  }
+  else
+  {
+    LASSERT(a, a->cell[0]->count != 0, "Function 'head' passed {}.");
+    v = lval_take(a, 0);  
+    while (v->count > 1) { lval_del(lval_pop(v, 1)); }
+  }
   return v;
 }
 
-lval* builtin_tail(lenv* e, lval* a) {
+lval* builtin_tail(lenv* e, lval* a)
+{
   LASSERT(a, a->count == 1,
 	  "Function 'tail' passed too many arguments. "
 	  "Got %i, Expected %i.",
 	  a->count, 1);
-  LASSERT(a, a->cell[0]->type == LVAL_QEXPR,
+  LASSERT(a, a->cell[0]->type == LVAL_QEXPR || a->cell[0]->type == LVAL_STR,
 	  "Function 'tail' passed incorrect type for argument 0. "
-	  "Got %s, Expected %s.",
-	  ltype_name(a->cell[0]->type), ltype_name(LVAL_QEXPR));
-  LASSERT(a, a->cell[0]->count != 0,
-	  "Function 'tail' passed {}.");
-  
-  lval* v = lval_take(a, 0);  
-  lval_del(lval_pop(v, 0));
+	  "Got %s, Expected %s or %s.",
+	  ltype_name(a->cell[0]->type), ltype_name(LVAL_QEXPR), ltype_name(LVAL_STR));
+
+  lval* v;
+  if(a->cell[0]->type == LVAL_STR)
+  {
+    if(strlen(a->cell[0]->str) == 0)
+      v = lval_str("\0");
+    else
+      v = lval_str(a->cell[0]->str+1);
+    lval_del(a);
+  }
+  else
+  {
+    LASSERT(a, a->cell[0]->count != 0, "Function 'tail' passed {}.");
+    
+    v = lval_take(a, 0);  
+    lval_del(lval_pop(v, 0));
+  }
   return v;
 }
 
