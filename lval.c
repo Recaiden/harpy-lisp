@@ -4,16 +4,34 @@
 #include "lval.h"
 #include "lenv.h"
 
-int lval_eq(lval* x, lval* y) {
+int lval_eq(lval* x, lval* y)
+{
 
-  /* Different Types are always unequal */
-  if (x->type != y->type) { return 0; }
+  /* Different non-numeric Types are always unequal */
+  if (x->type != y->type)
+  {
+    if((x->type == LVAL_INT && y->type == LVAL_NUM)
+       || (y->type == LVAL_INT && x->type == LVAL_NUM))
+    {}
+    else
+      return 0;
+  }
 
   /* Compare Based upon type */
-  switch (x->type) {
+  switch (x->type)
+  {
     /* Compare Number Value */
-    case LVAL_NUM: return (x->num == y->num);
-
+    case LVAL_NUM:
+      if(y->type == LVAL_NUM)
+	return (x->num == y->num);
+      else
+	return (x->num == y->integer);
+    case LVAL_INT:
+      if(y->type == LVAL_INT)
+	return (x->integer == y->integer);
+      else
+	return (x->integer == y->num);
+ 
     /* Compare String Values */
     case LVAL_ERR: return (strcmp(x->err, y->err) == 0);
     case LVAL_SYM: return (strcmp(x->sym, y->sym) == 0);
@@ -70,6 +88,14 @@ lval* lval_num(double x)
   lval* v = malloc(sizeof(lval));
   v->type = LVAL_NUM;
   v->num = x;
+  return v;
+}
+
+lval* lval_int(long x)
+{
+  lval* v = malloc(sizeof(lval));
+  v->type = LVAL_INT;
+  v->integer = x;
   return v;
 }
 
@@ -149,6 +175,7 @@ void lval_del(lval* v)
   switch (v->type)
   {
   case LVAL_NUM: break;
+  case LVAL_INT: break;
   case LVAL_STR: free(v->str); break;
   case LVAL_FUN:
     if(!v->builtin)
@@ -243,6 +270,7 @@ void lval_print(lval* v)
   switch (v->type)
   {
   case LVAL_NUM:   printf("%f", v->num); break;
+  case LVAL_INT:   printf("%d", v->integer); break;
   case LVAL_ERR:   printf("Error: %s", v->err); break;
   case LVAL_SYM:   printf("%s", v->sym); break;
   case LVAL_STR:   lval_print_str(v); break;
@@ -296,6 +324,7 @@ lval* lval_copy(lval* v)
     strcpy(x->str, v->str);
     break;
   case LVAL_NUM: x->num = v->num; break;
+  case LVAL_INT: x->integer = v->integer; break;
     
     /* Copy Strings using malloc and strcpy */
   case LVAL_ERR:
@@ -421,6 +450,7 @@ char* ltype_name(int t)
   {
   case LVAL_FUN: return "Function";
   case LVAL_NUM: return "Number";
+  case LVAL_INT: return "Integer";
   case LVAL_STR: return "String";
   case LVAL_ERR: return "Error";
   case LVAL_SYM: return "Symbol";
@@ -482,6 +512,12 @@ lval* lval_read_num(mpc_ast_t* t) {
   return errno != ERANGE ? lval_num(x) : lval_err("invalid number");
 }
 
+lval* lval_read_int(mpc_ast_t* t) {
+  errno = 0;
+  long x = strtol(t->contents, NULL, 10);
+  return errno != ERANGE ? lval_int(x) : lval_err("invalid number");
+}
+
 lval* lval_read_str(mpc_ast_t* t)
 {
   /* Cut off the final quote character */
@@ -501,6 +537,7 @@ lval* lval_read_str(mpc_ast_t* t)
 lval* lval_read(mpc_ast_t* t)
 {
   if (strstr(t->tag, "number")) { return lval_read_num(t); }
+  if (strstr(t->tag, "integer")) { return lval_read_int(t); }  
   if (strstr(t->tag, "string")) { return lval_read_str(t); }
   if (strstr(t->tag, "symbol")) { return lval_sym(t->contents); }
   

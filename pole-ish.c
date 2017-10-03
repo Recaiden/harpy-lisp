@@ -37,26 +37,29 @@ void add_history(char* unused) {}
 int main(int argc, char** argv)
 {
   mpc_parser_t* Comment  = mpc_new("comment");
-  mpc_parser_t* String  = mpc_new("string");
   mpc_parser_t* Number = mpc_new("number");
+  mpc_parser_t* Integer = mpc_new("integer");
+  mpc_parser_t* String  = mpc_new("string");
   mpc_parser_t* Symbol = mpc_new("symbol");
   mpc_parser_t* Sexpr  = mpc_new("sexpr");
   mpc_parser_t* Qexpr  = mpc_new("qexpr");
   mpc_parser_t* Expr   = mpc_new("expr");
   Lispy  = mpc_new("lispy");
-  
+
+  //number  : /-?([0-9]+\\.)?[0-9]+/ ;		 \ */
   mpca_lang(MPCA_LANG_DEFAULT,
     "    \
       comment : /;[^\\r\\n]*/ ;				 \
-      number  : /-?([0-9]+\\.)?[0-9]+/ ;		 \
+      number  : /-?[0-9]+\\.[0-9]+/ ;		 \
+      integer : /-?[0-9]+/ ;                             \
       string  : /\"(\\\\.|[^\"])*\"/ ;                   \
       symbol  : /[a-zA-Z0-9_+\%\\-*\\/\\\\=<>!&]+/ ;	 \
       sexpr   : '(' <expr>* ')' ;                        \
       qexpr   : '{' <expr>* '}' ;                        \
-      expr    : <string> | <number> | <comment> | <symbol> | <sexpr> | <qexpr> ;	\
+      expr    : <string> | <number> | <integer> | <comment> | <symbol> | <sexpr> | <qexpr> ; \
       lispy   : /^/ <expr>* /$/ ;                        \
     ",
-	    Comment, Number, String, Symbol, Sexpr, Qexpr, Expr, Lispy);
+	    Comment, Number, Integer, String, Symbol, Sexpr, Qexpr, Expr, Lispy);
 
   FILE* handleVer = fopen("VERSION", "rb");
   char  bufferVer[128];
@@ -126,7 +129,7 @@ int main(int argc, char** argv)
   }
 
   lenv_del(e);
-  mpc_cleanup(8, Comment, String, Number, Symbol, Sexpr, Qexpr, Expr, Lispy);
+  mpc_cleanup(9, Comment, Number, Integer, String, Symbol, Sexpr, Qexpr, Expr, Lispy);
   
   return 0;
 }

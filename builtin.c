@@ -227,35 +227,101 @@ lval* builtin_join(lenv* e, lval* a)
   return x;
 }
 
-lval* builtin_op(lenv* e, lval* a, char* op) {
+lval* builtin_int_op(lenv* e, lval* a, char* op)
+{
+  lval* x = lval_pop(a, 0);
+  if ((strcmp(op, "-") == 0) && a->count == 0) { x->integer = -x->integer; }
   
-  for (int i = 0; i < a->count; i++) {
-    if (a->cell[i]->type != LVAL_NUM) {
-      lval_del(a);
-      return lval_err("Cannot operate on non-number!");
+  while (a->count > 0)
+  {
+    lval* y = lval_pop(a, 0);
+    
+    if (strcmp(op, "+") == 0) { x->integer += y->integer; }
+    if (strcmp(op, "-") == 0) { x->integer -= y->integer; }
+    if (strcmp(op, "*") == 0) { x->integer *= y->integer; }
+    if (strcmp(op, "/") == 0)
+    {
+      if (y->integer == 0)
+      {
+        lval_del(x); lval_del(y);
+        x = lval_err("Division By Zero.");
+        break;
+      }
+      x->integer /= y->integer;
     }
+     if (strcmp(op, "%") == 0)
+     {
+      if (y->integer == 0)
+      {
+        lval_del(x); lval_del(y);
+        x = lval_err("Division By Zero.");
+        break;
+      }
+      x->integer = x->integer % y->integer;
+    }
+    
+    lval_del(y);
   }
   
+  lval_del(a);
+  return x;
+}
+
+lval* builtin_op(lenv* e, lval* a, char* op)
+{
+  int fp = 0;
+  /* Make sure all types are good, set floating point conversion flag if applicable */
+  for (int i = 0; i < a->count; i++)
+  {
+    if(a->cell[i]->type == LVAL_NUM)
+    {
+      fp = 1;
+      continue;
+    }
+    if(a->cell[i]->type == LVAL_INT)
+    {
+      continue;
+    }
+      
+    lval_del(a);
+    return lval_err("Cannot operate on non-number!");
+  }
+
+  /* If only int params, operate on the int field, otherwise it becomes float */
+  if(!fp)
+    return builtin_int_op(e, a, op);
+  
   lval* x = lval_pop(a, 0);
+  if(x->type == LVAL_INT)
+  {
+    x->num = (double)(x->integer);
+    x->type = LVAL_NUM;
+  }
   if ((strcmp(op, "-") == 0) && a->count == 0) { x->num = -x->num; }
   
-  while (a->count > 0) {
-  
+  while (a->count > 0)
+  {
     lval* y = lval_pop(a, 0);
+    if(y->type == LVAL_INT)
+      y->num = (double)(y->integer);
     
     if (strcmp(op, "+") == 0) { x->num += y->num; }
     if (strcmp(op, "-") == 0) { x->num -= y->num; }
     if (strcmp(op, "*") == 0) { x->num *= y->num; }
-    if (strcmp(op, "/") == 0) {
-      if (y->num == 0) {
+    if (strcmp(op, "/") == 0)
+    {  
+      if (y->num == 0)
+      {
         lval_del(x); lval_del(y);
         x = lval_err("Division By Zero.");
         break;
       }
       x->num /= y->num;
     }
-     if (strcmp(op, "%") == 0) {
-      if (y->num == 0) {
+     if (strcmp(op, "%") == 0)
+     {
+      if (y->num == 0)
+      {
         lval_del(x); lval_del(y);
         x = lval_err("Division By Zero.");
         break;
@@ -264,7 +330,7 @@ lval* builtin_op(lenv* e, lval* a, char* op) {
     }
     
     lval_del(y);
-  }
+  }   
   
   lval_del(a);
   return x;
