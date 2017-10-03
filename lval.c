@@ -65,7 +65,8 @@ lval* lval_str(char* st)
   return v;
 }
 
-lval* lval_num(long x) {
+lval* lval_num(double x)
+{
   lval* v = malloc(sizeof(lval));
   v->type = LVAL_NUM;
   v->num = x;
@@ -241,7 +242,7 @@ void lval_print(lval* v)
 {
   switch (v->type)
   {
-  case LVAL_NUM:   printf("%li", v->num); break;
+  case LVAL_NUM:   printf("%f", v->num); break;
   case LVAL_ERR:   printf("Error: %s", v->err); break;
   case LVAL_SYM:   printf("%s", v->sym); break;
   case LVAL_STR:   lval_print_str(v); break;
@@ -472,7 +473,7 @@ lval* lval_eval(lenv* e, lval* v)
 
 lval* lval_read_num(mpc_ast_t* t) {
   errno = 0;
-  long x = strtol(t->contents, NULL, 10);
+  double x = strtod(t->contents, NULL);
   return errno != ERANGE ? lval_num(x) : lval_err("invalid number");
 }
 

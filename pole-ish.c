@@ -29,13 +29,6 @@ void add_history(char* unused) {}
 #include <editline/history.h>
 #endif
 
-
-//============================================================================//
-//                  A S S E R T I O N S   A N D   E R R R O R S               //
-//============================================================================//
-
-
-
 int main(int argc, char** argv)
 {
   mpc_parser_t* Comment  = mpc_new("comment");
@@ -50,15 +43,15 @@ int main(int argc, char** argv)
   mpca_lang(MPCA_LANG_DEFAULT,
     "    \
       comment : /;[^\\r\\n]*/ ;				 \
-      string : /\"(\\\\.|[^\"])*\"/ ;                    \
-      number : /-?[0-9]+/ ;                              \
-      symbol : /[a-zA-Z0-9_+\%\\-*\\/\\\\=<>!&]+/ ;	 \
-      sexpr  : '(' <expr>* ')' ;                         \
-      qexpr  : '{' <expr>* '}' ;                         \
-      expr   : <string> | <number> | <comment> | <symbol> | <sexpr> | <qexpr> ;	\
-      lispy  : /^/ <expr>* /$/ ;                         \
+      number  : /-?([0-9]+\\.)?[0-9]+/ ;		 \
+      string  : /\"(\\\\.|[^\"])*\"/ ;                   \
+      symbol  : /[a-zA-Z0-9_+\%\\-*\\/\\\\=<>!&]+/ ;	 \
+      sexpr   : '(' <expr>* ')' ;                        \
+      qexpr   : '{' <expr>* '}' ;                        \
+      expr    : <string> | <number> | <comment> | <symbol> | <sexpr> | <qexpr> ;	\
+      lispy   : /^/ <expr>* /$/ ;                        \
     ",
-	    Comment, String, Number, Symbol, Sexpr, Qexpr, Expr, Lispy);
+	    Comment, Number, String, Symbol, Sexpr, Qexpr, Expr, Lispy);
 
   FILE* handleVer = fopen("VERSION", "rb");
   char  bufferVer[128];

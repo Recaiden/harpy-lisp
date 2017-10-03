@@ -12,7 +12,7 @@ struct lval
   int type;
 
   // Basic Types
-  long num;
+  double num;
   char* err;
   char* sym;
   char* str;
@@ -36,7 +36,7 @@ int lval_eq(lval* x, lval* y);
 //============================================================================//
 lval* lval_fun(lbuiltin func, char* name);
 lval* lval_str(char* st);
-lval* lval_num(long x);
+lval* lval_num(double x);
 lval* lval_err(char* fmt, ...);
 lval* lval_sym(char* s);
 lval* lval_sexpr(void);

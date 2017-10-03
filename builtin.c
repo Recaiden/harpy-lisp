@@ -1,3 +1,5 @@
+#include <stdlib.h>
+
 #include "mpc.h"
 
 #include "builtin.h"
@@ -195,7 +197,7 @@ lval* builtin_op(lenv* e, lval* a, char* op) {
         x = lval_err("Division By Zero.");
         break;
       }
-      x->num = x->num % y->num;
+      x->num = fmod(x->num, y->num);
     }
     
     lval_del(y);
