@@ -126,7 +126,7 @@
 ;
 ; Load other files
 ;
-(load "constants.arc")
-(load "condition.arc")
-(load "math.arc")
+(load "constants.ark")
+(load "condition.ark")
+(load "math.ark")
 

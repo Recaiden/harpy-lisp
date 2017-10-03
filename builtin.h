@@ -6,6 +6,7 @@
 typedef lval*(*lbuiltin)(lenv*, lval*);
 
 lval* builtin_load(lenv* e, lval* a);
+lval* builtin_read(lenv* e, lval* a);
 lval* builtin_lambda(lenv* e, lval* a);
 lval* builtin_list(lenv* e, lval* a);
 lval* builtin_head(lenv* e, lval* a);
