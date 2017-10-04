@@ -14,7 +14,6 @@
 static char buffer[2048];
 
 // NOTE lval substructures for functions and expressions.
-// TODO seperate int and floating-point types
 // NOTE boolean types?
 // TODO builtin logical operators
 
