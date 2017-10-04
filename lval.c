@@ -4,6 +4,11 @@
 #include "lval.h"
 #include "lenv.h"
 
+int is_numeric(int type)
+{
+  return type == LVAL_NUM || type == LVAL_INT;
+}
+
 int lval_eq(lval* x, lval* y)
 {
 

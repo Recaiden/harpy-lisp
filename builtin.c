@@ -354,10 +354,21 @@ lval* builtin_mod(lenv* e, lval* a)
 lval* builtin_comp(lenv* e, lval* a, char* op)
 {
   LASSERT_NUM(op, a, 2);
-  LASSERT_TYPE(op, a, 0, LVAL_NUM);
-  LASSERT_TYPE(op, a, 1, LVAL_NUM);
+  LASSERT(a, is_numeric(a->cell[0]->type),
+	    "Function 'compare' passed incorrect type: %s", ltype_name(a->cell[0]->type));
+  LASSERT(a, is_numeric(a->cell[1]->type),
+	    "Function 'compare' passed incorrect type: %s", ltype_name(a->cell[1]->type));
 
   int r;
+
+  if(a->cell[0]->type == LVAL_INT)
+  {
+    a->cell[0]->num = (double)(a->cell[0]->integer);
+  }
+  if(a->cell[1]->type == LVAL_INT)
+  {
+    a->cell[1]->num = (double)(a->cell[1]->integer);
+  }
 
   if (strcmp(op, "<=") == 0) { r = (a->cell[0]->num <= a->cell[1]->num); }
   if (strcmp(op, ">=") == 0) { r = (a->cell[0]->num >= a->cell[1]->num); }
@@ -367,7 +378,7 @@ lval* builtin_comp(lenv* e, lval* a, char* op)
   if (strcmp(op, "!=") == 0) { r = (a->cell[0]->num != a->cell[1]->num); }
   
   lval_del(a);
-  return lval_num(r);
+  return lval_int(r);
 }
 
 lval* builtin_lt(lenv* e, lval* a)
@@ -406,7 +417,7 @@ lval* builtin_ne(lenv* e, lval* a) {
 lval* builtin_if(lenv* e, lval* a)
 {
   LASSERT_NUM("if", a, 3);
-  LASSERT_TYPE("if", a, 0, LVAL_NUM);
+  LASSERT_TYPE("if", a, 0, LVAL_INT);
   LASSERT_TYPE("if", a, 1, LVAL_QEXPR);
   LASSERT_TYPE("if", a, 2, LVAL_QEXPR);
 

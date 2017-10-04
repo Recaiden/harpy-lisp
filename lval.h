@@ -32,7 +32,7 @@ struct lval
   lval** cell;
 };
 
-
+int is_numeric(int type);
 int lval_eq(lval* x, lval* y);
 
 //============================================================================//
