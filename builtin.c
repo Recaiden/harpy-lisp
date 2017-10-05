@@ -354,28 +354,36 @@ lval* builtin_mod(lenv* e, lval* a)
 lval* builtin_comp(lenv* e, lval* a, char* op)
 {
   LASSERT_NUM(op, a, 2);
-  LASSERT(a, is_numeric(a->cell[0]->type),
-	    "Function 'compare' passed incorrect type: %s", ltype_name(a->cell[0]->type));
-  LASSERT(a, is_numeric(a->cell[1]->type),
-	    "Function 'compare' passed incorrect type: %s", ltype_name(a->cell[1]->type));
-
+  
   int r;
-
-  if(a->cell[0]->type == LVAL_INT)
+  
+  if (strcmp(op, "==") == 0)
+  { r = lval_eq(a->cell[0], a->cell[1]);} 
+    /*{ r = (a->cell[0]->num == a->cell[1]->num); }*/
+  else if (strcmp(op, "!=") == 0)
+  { r = !lval_eq(a->cell[0], a->cell[1]);} 
+    /*{ r = (a->cell[0]->num != a->cell[1]->num); }*/
+  else
   {
-    a->cell[0]->num = (double)(a->cell[0]->integer);
+    LASSERT(a, is_numeric(a->cell[0]->type),
+	    "Function 'compare' passed incorrect type: %s", ltype_name(a->cell[0]->type));
+    LASSERT(a, is_numeric(a->cell[1]->type),
+	    "Function 'compare' passed incorrect type: %s", ltype_name(a->cell[1]->type));
+    
+    if(a->cell[0]->type == LVAL_INT)
+    {
+      a->cell[0]->num = (double)(a->cell[0]->integer);
+    }
+    if(a->cell[1]->type == LVAL_INT)
+    {
+      a->cell[1]->num = (double)(a->cell[1]->integer);
+    }
+    
+    if (strcmp(op, "<=") == 0) { r = (a->cell[0]->num <= a->cell[1]->num); }
+    if (strcmp(op, ">=") == 0) { r = (a->cell[0]->num >= a->cell[1]->num); }
+    if (strcmp(op, "<") == 0)  { r = (a->cell[0]->num <  a->cell[1]->num); }
+    if (strcmp(op, ">") == 0)  { r = (a->cell[0]->num >  a->cell[1]->num); }
   }
-  if(a->cell[1]->type == LVAL_INT)
-  {
-    a->cell[1]->num = (double)(a->cell[1]->integer);
-  }
-
-  if (strcmp(op, "<=") == 0) { r = (a->cell[0]->num <= a->cell[1]->num); }
-  if (strcmp(op, ">=") == 0) { r = (a->cell[0]->num >= a->cell[1]->num); }
-  if (strcmp(op, "<") == 0)  { r = (a->cell[0]->num <  a->cell[1]->num); }
-  if (strcmp(op, ">") == 0)  { r = (a->cell[0]->num >  a->cell[1]->num); }
-  if (strcmp(op, "==") == 0) { r = (a->cell[0]->num == a->cell[1]->num); }
-  if (strcmp(op, "!=") == 0) { r = (a->cell[0]->num != a->cell[1]->num); }
   
   lval_del(a);
   return lval_int(r);
@@ -393,25 +401,12 @@ lval* builtin_le(lenv* e, lval* a)
 lval* builtin_ge(lenv* e, lval* a)
 { return builtin_comp(e, a, ">="); }
 
-lval* builtin_cmp(lenv* e, lval* a, char* op) {
-  LASSERT_NUM(op, a, 2);
-  int r;
-  if (strcmp(op, "==") == 0) {
-    r =  lval_eq(a->cell[0], a->cell[1]);
-  }
-  if (strcmp(op, "!=") == 0) {
-    r = !lval_eq(a->cell[0], a->cell[1]);
-  }
-  lval_del(a);
-  return lval_num(r);
-}
-
 lval* builtin_eq(lenv* e, lval* a) {
-  return builtin_cmp(e, a, "==");
+  return builtin_comp(e, a, "==");
 }
 
 lval* builtin_ne(lenv* e, lval* a) {
-  return builtin_cmp(e, a, "!=");
+  return builtin_comp(e, a, "!=");
 }
 
 lval* builtin_if(lenv* e, lval* a)
@@ -426,7 +421,7 @@ lval* builtin_if(lenv* e, lval* a)
   a->cell[1]->type = LVAL_SEXPR;
   a->cell[2]->type = LVAL_SEXPR;
 
-  x = lval_eval(e, lval_pop(a, a->cell[0]->num ? 1 : 2));
+  x = lval_eval(e, lval_pop(a, a->cell[0]->integer ? 1 : 2));
 
   /* Delete argument list and return */
   lval_del(a);

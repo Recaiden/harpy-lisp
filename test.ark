@@ -1,0 +1,11 @@
+(fun {test condition expectation}
+{(if (== condition expectation) {} {print "Test failed" condition "vs"
+expectation} )})
+
+
+; Make sure 'IF' is even working
+(if 0 {print "False is True, 0 is 1"} {})
+
+; Confirm numeric comparisons
+(if (> 1 2) {"Greater than test 1 failed"} {})
+;todo
