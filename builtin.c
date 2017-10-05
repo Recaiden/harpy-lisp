@@ -518,7 +518,8 @@ lval* builtin_put(lenv* e, lval* a)
 lval* builtin_print(lenv* e, lval* a) {
 
   /* Print each argument followed by a space */
-  for (int i = 0; i < a->count; i++) {
+  for (int i = 0; i < a->count; i++)
+  {
     lval_print(a->cell[i]); putchar(' ');
   }
 

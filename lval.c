@@ -244,17 +244,32 @@ lval* lval_take(lval* v, int i) {
   return x;
 }
 
-void lval_expr_print(lval* v, char open, char close) {
+void lval_expr_print(lval* v, char open, char close)
+{
   putchar(open);
-  for (int i = 0; i < v->count; i++) {
-    
+  for (int i = 0; i < v->count; i++)
+  {
     lval_print(v->cell[i]);
     
-    if (i != (v->count-1)) {
+    if (i != (v->count-1))
+    {
       putchar(' ');
     }
   }
   putchar(close);
+}
+
+void lval_print_esc_str(lval* v)
+{
+  /* Make a copy */
+  char* escaped = malloc(strlen(v->str) + 1);
+  strcpy(escaped, v->str);
+  /* Pass it through the escape function */
+  escaped = mpcf_escape(escaped);
+  /* Print it between " characters */
+  printf("\"%s\"", escaped);
+  /* free the copied string */
+  free(escaped);
 }
 
 void lval_print_str(lval* v)
@@ -265,7 +280,7 @@ void lval_print_str(lval* v)
   /* Pass it through the escape function */
   escaped = mpcf_escape(escaped);
   /* Print it between " characters */
-  printf("\"%s\"", escaped);
+  printf("%s", escaped);
   /* free the copied string */
   free(escaped);
 }
@@ -286,8 +301,10 @@ void lval_print(lval* v)
     }
     else
     {
-      printf("(\\ "); lval_print(v->formals);
-    putchar(' '); lval_print(v->body); putchar(')');
+      printf("(\\%s\n  ", v->sym);
+      lval_print(v->formals);
+      printf("\n  ");
+      putchar(' '); lval_print(v->body); putchar(')');
     }
     break;
   case LVAL_SEXPR:
