@@ -27,9 +27,18 @@ struct lval
   lval* formals;
   lval* body;
 
-  // Expression
-  int count;
+  // Expression uses count and cell, a number and array
+  // Object Uses sym for type-name and count for size, mem for what it's holding.
+  union MetaData
+  {
+    int count;
+    int size;
+  };
+  union Pointer
+  {
   lval** cell;
+  void* mem;
+  };
 };
 
 int is_numeric(int type);
@@ -44,6 +53,7 @@ lval* lval_int(long x);
 lval* lval_num(double x);
 lval* lval_err(char* fmt, ...);
 lval* lval_sym(char* s);
+lval* lval_obj(char* type, int size); // Never constructed directly, only by builtins.
 lval* lval_sexpr(void);
 lval* lval_lambda(lval* formals, lval* body);
 lval* lval_qexpr(void);

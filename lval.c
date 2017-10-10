@@ -62,6 +62,8 @@ int lval_eq(lval* x, lval* y)
       /* Otherwise lists must be equal */
       return 1;
     break;
+  case LVAL_OBJ:
+    return x->mem == y->mem; break;
   }
   return 0;
 }
@@ -101,6 +103,17 @@ lval* lval_int(long x)
   lval* v = malloc(sizeof(lval));
   v->type = LVAL_INT;
   v->integer = x;
+  return v;
+}
+
+lval* lval_obj(char* type, int size)
+{
+  lval* v = malloc(sizeof(lval));
+  v->type = LVAL_OBJ;
+  v->sym = malloc(strlen(type) + 1);
+  strcpy(v->sym, type);
+  v->mem = malloc(size);
+  v->size = size;
   return v;
 }
 
@@ -205,6 +218,7 @@ void lval_del(lval* v)
     /* Also free the memory allocated to contain the pointers */
     free(v->cell);
     break;
+  case LVAL_OBJ: free(v->sym); free(v->mem); break;
   }
   
   free(v);
@@ -314,6 +328,7 @@ void lval_print(lval* v)
       }
     lval_expr_print(v, '(', ')'); break;
   case LVAL_QEXPR: lval_expr_print(v, '{', '}'); break;
+  case LVAL_OBJ: printf("%s-type object @ %p", v->sym, v->mem); break;
   }
 }
 
@@ -366,6 +381,13 @@ lval* lval_copy(lval* v)
     {
       x->cell[i] = lval_copy(v->cell[i]);
     }
+    break;
+  case LVAL_OBJ:
+    x->sym = malloc(strlen(v->sym) + 1);
+    strcpy(x->sym, v->sym); break;
+    x->size = v->size;
+    x->mem = malloc(x->size);
+    memcpy(x->mem, v->mem, x->size);
     break;
   }
   
@@ -478,6 +500,7 @@ char* ltype_name(int t)
   case LVAL_SYM: return "Symbol";
   case LVAL_SEXPR: return "S-Expression";
   case LVAL_QEXPR: return "Q-Expression";
+  case LVAL_OBJ: return "Object";
   default: return "Unknown";
   }
 }
