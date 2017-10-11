@@ -110,9 +110,12 @@ lval* lval_obj(char* type, int size)
 {
   lval* v = malloc(sizeof(lval));
   v->type = LVAL_OBJ;
+  
   v->sym = malloc(strlen(type) + 1);
   strcpy(v->sym, type);
+  
   v->mem = malloc(size);
+  
   v->size = size;
   return v;
 }
@@ -384,10 +387,11 @@ lval* lval_copy(lval* v)
     break;
   case LVAL_OBJ:
     x->sym = malloc(strlen(v->sym) + 1);
-    strcpy(x->sym, v->sym); break;
+    strcpy(x->sym, v->sym);
     x->size = v->size;
-    x->mem = malloc(x->size);
-    memcpy(x->mem, v->mem, x->size);
+    x->mem = malloc(v->size);
+    x->mem = v->mem;
+    //memcpy(x->mem, v->mem, x->size);
     break;
   }
   

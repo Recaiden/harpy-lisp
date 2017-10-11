@@ -8,6 +8,7 @@
 #include "builtin.h"
 #include "lenv.h"
 #include "lval.h"
+#include "stdio.h"
 
 #ifdef _WIN32
 
@@ -77,6 +78,8 @@ int main(int argc, char** argv)
 
   lenv* e = lenv_new();
   lenv_add_builtins(e);
+  // TODO inner environment
+  lenv_add_stdio(e);
   
   // builtin macros
   mpc_result_t rbmac;

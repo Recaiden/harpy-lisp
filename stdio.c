@@ -1,3 +1,5 @@
+#include "stdio.h"
+
 #define FILE_MODE_WRITE 2
 #define FILE_MODE_READ 3
 #define FILE_TAG_APPEND 5
@@ -18,21 +20,54 @@ lval* builtin_fopen(lenv* e, lval* a)
 {
   LASSERT_NUM("fopen", a, 2);
   LASSERT_TYPE("fopen", a, 0, LVAL_STR);
-  LASSERT_TYPE("fopen", a, 1, LVAL_INT);
+  LASSERT_TYPE("fopen", a, 1, LVAL_STR);
   
-  lval* file = lval_pop(a, 0);
+  lval* filename = lval_pop(a, 0);
   lval* strMode = lval_pop(a, 0);
 
-  // TODO create STREAM-type lval(!?) containing result.
-  fopen (file->str, strMode->str);
-  lval_del(file);
-  lval_del(strMode);
+  lval* x = lval_obj("FILE", sizeof(FILE*));
+  x->mem = (void*)fopen(filename->str, strMode->str);
+  if(x->mem == NULL)
+  {
+    lval_del(x);
+    x = lval_err(strerror(errno));
+    perror("The following error occurred opening");
+  }
 
+  lval_del(filename);
+  lval_del(strMode);
+  return x;
 }
 
 
+/* Paramters are file handle, size */
 lval* builtin_fread(lenv* e, lval* a)
 {
+  LASSERT_TYPE("fread", a, 0, LVAL_OBJ);
+  LASSERT_TYPE("fread", a, 1, LVAL_INT);
+
+  //TODO assert that obj-type is "FILE"
+
+  lval* valFile = lval_pop(a, 0);
+  lval* valSize = lval_pop(a, 0);
+  int size = valSize->integer;
+  int cRead;
+
+  char* buffer = malloc(size);
+
+  cRead = fread(buffer, size, 1, (FILE*)valFile->mem);
+
+  lval* x;
+  if(cRead)
+    x = lval_str(buffer);
+  else
+    x = lval_err("fread failed");
+  free(buffer);
+
+  lval_del(valFile);
+  lval_del(valSize);
+
+  return x;
 }
 
 lval* builtin_fwrite(lenv* e, lval* a)
@@ -66,3 +101,11 @@ scan/print
 get/put
 
  */
+
+
+void lenv_add_stdio(lenv* e)
+{
+  lenv_add_builtin(e, "fopen", builtin_fopen);
+  lenv_add_builtin(e, "fread", builtin_fread);
+
+}

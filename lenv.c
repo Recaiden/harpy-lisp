@@ -37,15 +37,7 @@ lval* lenv_get(lenv* e, lval* k)
       return lval_copy(e->vals[i]);
     }
   }
-  /* If no symbol found return error */
-  /*if (e->par)
-  {
-    return lenv_get(e->par, k);
-  }
-  else
-  {
-    return lval_err("Unbound symbol '%s'", k->sym);
-  }*/
+
   return e->par ? lenv_get(e->par, k) : lval_err("Unbound symbol '%s'", k->sym);
 }
 
