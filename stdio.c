@@ -72,6 +72,28 @@ lval* builtin_fread(lenv* e, lval* a)
 
 lval* builtin_fwrite(lenv* e, lval* a)
 {
+  LASSERT_TYPE("fwrite", a, 0, LVAL_OBJ);
+  LASSERT_TYPE("fwrite", a, 1, LVAL_STR);
+
+  //TODO assert that obj-type is "FILE"
+
+  lval* valFile = lval_pop(a, 0);
+  lval* valText = lval_pop(a, 0);
+  int size = strlen(valText->str);
+  int cRead;
+  
+  cWrote = fread(valText->str, size, 1, (FILE*)valFile->mem);
+
+  lval* x;
+  if(cWrote == size)
+    x = lval_int(cWrote);
+  else
+    x = lval_err("fwrite failed");
+
+  lval_del(valFile);
+  lval_del(valSize);
+
+  return x;
 }
 
 lval* builtin_fflush(lenv* e, lval* a)
