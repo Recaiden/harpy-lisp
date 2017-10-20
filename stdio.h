@@ -1,5 +1,5 @@
-#ifndef STDIO_H
-#define STDIO_H
+#ifndef HARPY_STDIO_H
+#define HARPY_STDIO_H
 
 #include "mpc.h"
 

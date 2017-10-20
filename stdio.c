@@ -1,18 +1,14 @@
 #include "stdio.h"
 
-#define FILE_MODE_WRITE 2
-#define FILE_MODE_READ 3
-#define FILE_TAG_APPEND 5
-#define FILE_TAG_OVERWRITE 7
-#define FILE_TAG_PRESERVE 11
-#define FILE_TAG_NO_DISCARD 13
-
-/* fclose filename(str) */
+/* fclose filehandle(obj) */
 lval* builtin_fclose(lenv* e, lval* a)
 {
   LASSERT_NUM("fclose", a, 1);
-  LASSERT_TYPE("fclose", a, 0, LVAL_STR);
+  LASSERT_TYPE("fclose", a, 0, LVAL_OBJ);
 
+  LASSERT(a, (strncmp(a->cell[0]->cell[0]->sym, "FILE", 4) == 0),
+	  "fclose requires FILE, got %s", a->cell[0]->cell[0]->sym);
+  
 }
 
 /* fopen filename(str) mode(str) */
@@ -40,14 +36,15 @@ lval* builtin_fopen(lenv* e, lval* a)
 }
 
 
-/* Paramters are file handle, size */
+/* fread filehandle(obj) size(int) */
 lval* builtin_fread(lenv* e, lval* a)
 {
   LASSERT_TYPE("fread", a, 0, LVAL_OBJ);
   LASSERT_TYPE("fread", a, 1, LVAL_INT);
-
-  //TODO assert that obj-type is "FILE"
-
+  
+  LASSERT(a, (strncmp(a->cell[0]->cell[0]->sym, "FILE", 4) == 0),
+	  "fread requires FILE, got %s", a->cell[0]->cell[0]->sym);
+  
   lval* valFile = lval_pop(a, 0);
   lval* valSize = lval_pop(a, 0);
   int size = valSize->integer;
@@ -70,19 +67,21 @@ lval* builtin_fread(lenv* e, lval* a)
   return x;
 }
 
-lval* builtin_fwrite(lenv* e, lval* a)
+/* fwrite filehandle(obj) text(str) */
+lval* builtin_fwrite_string(lenv* e, lval* a)
 {
-  LASSERT_TYPE("fwrite", a, 0, LVAL_OBJ);
-  LASSERT_TYPE("fwrite", a, 1, LVAL_STR);
+  LASSERT_TYPE("fprint", a, 0, LVAL_OBJ);
+  LASSERT_TYPE("fprint", a, 1, LVAL_STR);
 
-  //TODO assert that obj-type is "FILE"
+  LASSERT(a, (strncmp(a->cell[0]->cell[0]->sym, "FILE", 4) == 0),
+	  "fprint requires FILE, got %s", a->cell[0]->cell[0]->sym);
 
   lval* valFile = lval_pop(a, 0);
   lval* valText = lval_pop(a, 0);
   int size = strlen(valText->str);
-  int cRead;
+  int cWrote;
   
-  cWrote = fread(valText->str, size, 1, (FILE*)valFile->mem);
+  cWrote = fwrite(valText->str, size, 1, (FILE*)valFile->mem);
 
   lval* x;
   if(cWrote == size)
@@ -91,6 +90,38 @@ lval* builtin_fwrite(lenv* e, lval* a)
     x = lval_err("fwrite failed");
 
   lval_del(valFile);
+  lval_del(valText);
+
+  return x;
+}
+
+/* fwrite filehandle(obj) mem(???) size(int) */
+/* TODO writing only strings is really limiting, should be able to write binary.*/
+lval* builtin_fwrite(lenv* e, lval* a)
+{
+  LASSERT_TYPE("fwrite", a, 0, LVAL_OBJ);
+  // TODO add type for raw objecsts?
+  LASSERT_TYPE("fwrite", a, 2, LVAL_STR);
+
+  LASSERT(a, (strncmp(a->cell[0]->cell[0]->sym, "FILE", 4) == 0),
+	  "fwrite requires FILE, got %s", a->cell[0]->cell[0]->sym);
+
+  lval* valFile = lval_pop(a, 0);
+  lval* valText = lval_pop(a, 0);
+  lval* valSize = lval_pop(a, 0);
+  int size = valSize->integer;
+  int cWrote;
+  
+  cWrote = fwrite(valText->str, size, 1, (FILE*)valFile->mem);
+
+  lval* x;
+  if(cWrote == size)
+    x = lval_int(cWrote);
+  else
+    x = lval_err("fwrite failed");
+
+  lval_del(valFile);
+  lval_del(valText);
   lval_del(valSize);
 
   return x;
@@ -129,5 +160,7 @@ void lenv_add_stdio(lenv* e)
 {
   lenv_add_builtin(e, "fopen", builtin_fopen);
   lenv_add_builtin(e, "fread", builtin_fread);
+  lenv_add_builtin(e, "fprint", builtin_fwrite_string);
+  lenv_add_builtin(e, "fwrite", builtin_fwrite);
 
 }
