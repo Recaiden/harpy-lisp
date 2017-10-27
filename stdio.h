@@ -6,6 +6,7 @@
 #include "harpy.h"
 #include "builtin.h"
 #include "lval.h"
+#include "lenv.h"
 
 lval* builtin_fclose(lenv* e, lval* a);
 lval* builtin_fopen(lenv* e, lval* a);

@@ -73,9 +73,6 @@ int main(int argc, char** argv)
     fread(bufferVer, 1, sizeVersion, handleVer);
   }
 
-  printf("Harpy-Lispy Version %s", bufferVer);
-  puts("Press Ctrl+c to Exit\n");
-
   lenv* e = lenv_new();
   lenv_add_builtins(e);
   // TODO inner environment
@@ -106,30 +103,36 @@ int main(int argc, char** argv)
       lval_del(x);
     }
   }
-  
-  while (1)
+  else
   {
-    char* input = readline("==> ");
-    add_history(input);
-    
-    mpc_result_t r;
-    if (mpc_parse("<stdin>", input, Lispy, &r))
-    {
-      lval* x = lval_eval(e, lval_read(r.output));
+     printf("Harpy-Lispy Version %s", bufferVer);
+     puts("Press Ctrl+c to Exit\n");
+  
+     while (1)
+     {
+       char* input = readline("==> ");
+       add_history(input);
+       
+       mpc_result_t r;
+       if (mpc_parse("<stdin>", input, Lispy, &r))
+       {
+	 lval* x = lval_eval(e, lval_read(r.output));
+	 
+	 lval_println(x);
+	 lval_del(x);
       
-      lval_println(x);
-      lval_del(x);
-      
-      mpc_ast_delete(r.output);
-    } else
-    {
-      mpc_err_print(r.error);
-      mpc_err_delete(r.error);
-    }
-    
-    free(input);
+	 mpc_ast_delete(r.output);
+       }
+       else
+       {
+	 mpc_err_print(r.error);
+	 mpc_err_delete(r.error);
+       }
+       
+       free(input);
+     }
   }
-
+  
   lenv_del(e);
   mpc_cleanup(9, Comment, Number, Integer, String, Symbol, Sexpr, Qexpr, Expr, Lispy);
   
