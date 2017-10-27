@@ -17,6 +17,7 @@ static char buffer[2048];
 // NOTE lval substructures for functions and expressions.
 // NOTE boolean types?
 // TODO builtin logical operators
+// TODO conversion between numerical and string types, atoi/itoa or (int)
 
 char* readline(char* prompt) {
   fputs(prompt, stdout);

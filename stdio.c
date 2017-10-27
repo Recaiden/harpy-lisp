@@ -102,8 +102,9 @@ lval* builtin_fwrite(lenv* e, lval* a)
 /* fgets src(obj) maxsize(int) */
 lval* builtin_fread_linen(lenv* e, lval* a)
 {
-  LASSERT_TYPE("fread", a, 0, LVAL_OBJ);
-  LASSERT_TYPE("fread", a, 1, LVAL_INT);
+  LASSERT_NUM("fgets", a, 2);
+  LASSERT_TYPE("fgets", a, 0, LVAL_OBJ);
+  LASSERT_TYPE("fgets", a, 1, LVAL_INT);
   LASSERT(a, (strncmp(a->cell[0]->sym, "FILE", 4) == 0),
 	  "fgets requires FILE, got %s", a->cell[0]->sym);
   
@@ -132,6 +133,7 @@ lval* builtin_fread_linen(lenv* e, lval* a)
 /* fwrite filehandle(obj) text(str) */
 lval* builtin_fwrite_string(lenv* e, lval* a)
 {
+  LASSERT_NUM("printf", a, 2);
   LASSERT_TYPE("fprint", a, 0, LVAL_OBJ);
   LASSERT_TYPE("fprint", a, 1, LVAL_STR);
 
