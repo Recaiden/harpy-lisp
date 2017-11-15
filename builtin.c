@@ -229,8 +229,18 @@ lval* builtin_join(lenv* e, lval* a)
 
 lval* builtin_int_op(lenv* e, lval* a, char* op)
 {
+  LASSERT(a, a->count >= 1,
+	  "Function '%s' passed wrong number of arguments. Got %i, Expected at least 1.",
+	  op, a->count);
+  
   lval* x = lval_pop(a, 0);
   if ((strcmp(op, "-") == 0) && a->count == 0) { x->integer = -x->integer; }
+  else
+  {
+    LASSERT(a, a->count >= 1,
+	  "Function '%s' passed wrong number of arguments. Got %i, Expected at least 2.",
+	  op, a->count);
+  }
   
   while (a->count > 0)
   {

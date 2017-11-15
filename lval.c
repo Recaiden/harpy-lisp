@@ -77,7 +77,9 @@ lval* lval_fun(lbuiltin func, char* name)
   lval* v = malloc(sizeof(lval));
   v->type = LVAL_FUN;
   v->builtin = func;
-  v->sym = name;
+  v->sym = malloc(strlen(name) + 1);
+  strcpy(v->sym, name);
+  //v->sym = name;
   return v;
 }
 
@@ -174,6 +176,7 @@ lval* lval_lambda(lval* formals, lval* body)
   /* Set Formals and Body */
   v->formals = formals;
   v->body = body;
+  v->sym = NULL;
   return v;
 }
 
@@ -318,7 +321,7 @@ void lval_print(lval* v)
     }
     else
     {
-      printf("(\\%s\n  ", v->sym);
+      printf("(\\\n  ");
       lval_print(v->formals);
       printf("\n  ");
       putchar(' '); lval_print(v->body); putchar(')');
@@ -511,21 +514,28 @@ char* ltype_name(int t)
 
 
 
-lval* lval_eval_sexpr(lenv* e, lval* v) {
-
-  for (int i = 0; i < v->count; i++) {
+lval* lval_eval_sexpr(lenv* e, lval* v)
+{
+  for (int i = 0; i < v->count; i++)
+  {
     v->cell[i] = lval_eval(e, v->cell[i]);
   }
 
-  for (int i = 0; i < v->count; i++) {
+  for (int i = 0; i < v->count; i++)
+  {
     if (v->cell[i]->type == LVAL_ERR) { return lval_take(v, i); }
   }
 
   if (v->count == 0) { return v; }
-  if (v->count == 1) { return lval_take(v, 0); }
 
   /* Ensure first element is a function after evaluation */
   lval* f = lval_pop(v, 0);
+  if (v->count == 0 && f->type != LVAL_FUN)
+  {
+    lval_del(v);
+    return f;
+    //return lval_take(v, 0);
+  }
 
   if (f->type != LVAL_FUN)
   {
