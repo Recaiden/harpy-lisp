@@ -56,7 +56,10 @@ lval* builtin_fread(lenv* e, lval* a)
 
   lval* x;
   if(cRead)
-    x = lval_str(buffer);
+  {
+    x = lval_obj("MEM", size);
+    memcpy( x->mem, buffer, size );
+  }
   else
     x = lval_err("fread failed");
   free(buffer);
@@ -193,10 +196,11 @@ get/put
 
 void lenv_add_stdio(lenv* e)
 {
+  // Print and get for strings, reand write for raw data
   lenv_add_builtin(e, "fopen", builtin_fopen);
   lenv_add_builtin(e, "fread", builtin_fread);
   lenv_add_builtin(e, "fwrite", builtin_fwrite);
-  lenv_add_builtin(e, "freadlinen", builtin_fread_linen); //wraps fgets
+  lenv_add_builtin(e, "fget", builtin_fread_linen); //wraps fgets
   lenv_add_builtin(e, "fprint", builtin_fwrite_string); //functions like fputs
 
   //TODO add stdio, stdout, stderr to the global environment as handles

@@ -393,8 +393,8 @@ lval* lval_copy(lval* v)
     strcpy(x->sym, v->sym);
     x->size = v->size;
     x->mem = malloc(v->size);
-    x->mem = v->mem;
-    //memcpy(x->mem, v->mem, x->size);
+    //x->mem = v->mem;
+    memcpy(x->mem, v->mem, x->size);
     break;
   }
   

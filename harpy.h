@@ -5,8 +5,17 @@
 
 mpc_parser_t* Lispy;
 
-/* LVAL_INT is an integer type, LVAL_NUM is a flaoting point type */
-enum type_lval { LVAL_ERR, LVAL_INT, LVAL_NUM, LVAL_SYM, LVAL_STR, LVAL_FUN, LVAL_SEXPR, LVAL_QEXPR, LVAL_OBJ };
+/* LVAL_INT is an integer type, LVAL_NUM is a floating point type */
+enum type_lval { LVAL_ERR, // Error
+		 LVAL_INT, // Integer
+		 LVAL_NUM, // Double-precision floating point
+		 LVAL_SYM, // Symbol, holds variables
+		 LVAL_STR, // String
+		 LVAL_FUN, // Function
+		 LVAL_SEXPR, // Code-snippet
+		 LVAL_QEXPR, // Data-bundle
+		 LVAL_OBJ // contains raw memory or system objects
+};
 
 struct lval;
 struct lenv;
